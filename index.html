@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpeedCheck</title>
+  <meta name="description" content="Fast, beautiful internet speed test. No backend required." />
+  <meta name="theme-color" content="#0a0a0f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SpeedCheck" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="icon" type="image/png" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <div class="app">
+
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 16 L14 10 L20 16 L26 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 22 L16 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="16" cy="16" r="2" fill="currentColor"/>
+        </svg>
+        <span>SpeedCheck</span>
+      </div>
+      <div id="pwa-install-btn" class="install-btn hidden">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-3-3M10 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Install App
+      </div>
+    </header>
+
+    <!-- IDLE STATE -->
+    <main id="screen-idle" class="screen active">
+      <div class="idle-content">
+        <div class="pulse-ring">
+          <div class="pulse-ring-inner">
+            <button id="start-btn" class="start-button" aria-label="Start speed test">
+              <span class="start-text">START</span>
+              <span class="start-sub">Tap to test</span>
+            </button>
+          </div>
+        </div>
+        <div class="idle-metrics">
+          <div class="idle-metric">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M3 10h14M13 6l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Download</span>
+          </div>
+          <div class="idle-metric">
+            <svg viewBox="0 0 20 20" fill="none"><path d="M17 10H3M7 14l-4-4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>Upload</span>
+          </div>
+          <div class="idle-metric">
+            <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2.5 2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>Ping</span>
+          </div>
+        </div>
+        <p class="idle-hint">Tests your real internet speed using global servers</p>
+      </div>
+    </main>
+
+    <!-- TESTING STATE -->
+    <main id="screen-testing" class="screen">
+      <div class="testing-content">
+
+        <div class="phase-label">
+          <div class="phase-dot"></div>
+          <span id="phase-text">Connecting...</span>
+        </div>
+
+        <!-- Big speed gauge -->
+        <div class="gauge-wrapper">
+          <svg class="gauge-svg" viewBox="0 0 220 140" fill="none">
+            <!-- Track arc -->
+            <path class="gauge-track" d="M20 120 A90 90 0 0 1 200 120" stroke-width="10" stroke-linecap="round"/>
+            <!-- Active arc -->
+            <path id="gauge-arc" class="gauge-arc" d="M20 120 A90 90 0 0 1 200 120" stroke-width="10" stroke-linecap="round" style="stroke-dasharray: 283; stroke-dashoffset: 283;"/>
+            <!-- Speed markers -->
+            <text x="18" y="135" class="gauge-label">0</text>
+            <text x="102" y="30" class="gauge-label" text-anchor="middle">500</text>
+            <text x="195" y="135" class="gauge-label" text-anchor="end">1000</text>
+          </svg>
+          <div class="gauge-center">
+            <div id="live-speed" class="live-speed">0</div>
+            <div id="live-unit" class="live-unit">Mbps</div>
+          </div>
+        </div>
+
+        <!-- Live mini metrics -->
+        <div class="live-metrics">
+          <div class="live-metric">
+            <span class="live-metric-label">
+              <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+              PING
+            </span>
+            <span id="live-ping" class="live-metric-value">—</span>
+            <span class="live-metric-unit">ms</span>
+          </div>
+          <div class="live-metric">
+            <span class="live-metric-label">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h12M9 5l3 3-3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              DOWN
+            </span>
+            <span id="live-download" class="live-metric-value">—</span>
+            <span class="live-metric-unit">Mbps</span>
+          </div>
+          <div class="live-metric">
+            <span class="live-metric-label">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M14 8H2M7 11l-3-3 3-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              UP
+            </span>
+            <span id="live-upload" class="live-metric-value">—</span>
+            <span class="live-metric-unit">Mbps</span>
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-track">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+        <p id="progress-label" class="progress-label">Initializing...</p>
+
+      </div>
+    </main>
+
+    <!-- RESULTS STATE -->
+    <main id="screen-results" class="screen">
+      <div class="results-content">
+        <div class="results-header">
+          <div class="results-status">
+            <div class="results-icon">✓</div>
+            <span>Test Complete</span>
+          </div>
+          <div id="result-timestamp" class="result-timestamp"></div>
+        </div>
+
+        <div class="result-cards">
+          <div class="result-card card-ping">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="card-label">Ping</div>
+            <div class="card-value"><span id="r-ping">—</span><span class="card-unit">ms</span></div>
+            <div id="r-ping-rating" class="card-rating"></div>
+          </div>
+
+          <div class="result-card card-down">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M4 12h16M13 7l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="card-label">Download</div>
+            <div class="card-value"><span id="r-download">—</span><span class="card-unit">Mbps</span></div>
+            <div id="r-download-rating" class="card-rating"></div>
+          </div>
+
+          <div class="result-card card-up">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M20 12H4M11 17l-5-5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="card-label">Upload</div>
+            <div class="card-value"><span id="r-upload">—</span><span class="card-unit">Mbps</span></div>
+            <div id="r-upload-rating" class="card-rating"></div>
+          </div>
+        </div>
+
+        <div id="result-summary" class="result-summary"></div>
+
+        <div class="result-actions">
+          <button id="retest-btn" class="retest-btn">Run Again</button>
+          <button id="share-btn" class="share-btn">Share Results</button>
+        </div>
+
+        <div class="server-info">
+          <span>Tested via</span>
+          <a href="https://speed.cloudflare.com" target="_blank" rel="noopener">Cloudflare Speed Test API</a>
+        </div>
+      </div>
+    </main>
+
+    <!-- OFFLINE STATE -->
+    <main id="screen-offline" class="screen">
+      <div class="offline-content">
+        <div class="offline-icon">
+          <svg viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2"/>
+            <path d="M20 20L44 44M44 20L20 44" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h2>You're Offline</h2>
+        <p>A network connection is required to run the speed test. Check your connection and try again.</p>
+        <button id="retry-offline-btn" class="retest-btn">Try Again</button>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- LibreSpeed library via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js" defer></script>
+  <script src="script.js"></script>
+</body>
+</html>
